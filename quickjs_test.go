@@ -8,7 +8,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/buke/quickjs-go"
+	"github.com/aoliaoaoaojiao/quickjs-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
