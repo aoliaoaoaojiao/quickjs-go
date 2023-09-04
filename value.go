@@ -97,7 +97,7 @@ func (v Value) ToByteArray(size uint) ([]byte, error) {
 // IsByteArray return true if the value is array buffer
 func (v Value) IsByteArray() bool {
 	v.Len()
-	return v.IsObject() && v.globalInstanceof("ArrayBuffer") || v.String() == "[object ArrayBuffer]"
+	return v.IsObject() && v.GlobalInstanceof("ArrayBuffer") || v.String() == "[object ArrayBuffer]"
 }
 
 // Int64 returns the int64 value of the value.
@@ -190,12 +190,12 @@ func (v Value) ToSet() *Set {
 
 // IsMap return true if the value is a map
 func (v Value) IsMap() bool {
-	return v.IsObject() && v.globalInstanceof("Map") || v.String() == "[object Map]"
+	return v.IsObject() && v.GlobalInstanceof("Map") || v.String() == "[object Map]"
 }
 
 // IsSet return true if the value is a set
 func (v Value) IsSet() bool {
-	return v.IsObject() && v.globalInstanceof("Set") || v.String() == "[object Set]"
+	return v.IsObject() && v.GlobalInstanceof("Set") || v.String() == "[object Set]"
 }
 
 // Len returns the length of the array.
@@ -332,8 +332,8 @@ func (v Value) DeleteIdx(idx int64) bool {
 	return C.JS_DeletePropertyInt64(v.ctx.ref, v.ref, C.int64_t(idx), C.int(1)) == 1
 }
 
-// globalInstanceof checks if the value is an instance of the given global constructor
-func (v Value) globalInstanceof(name string) bool {
+// GlobalInstanceof checks if the value is an instance of the given global constructor
+func (v Value) GlobalInstanceof(name string) bool {
 	ctor := v.ctx.Globals().Get(name)
 	defer ctor.Free()
 	if ctor.IsUndefined() {

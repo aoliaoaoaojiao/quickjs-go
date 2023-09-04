@@ -655,3 +655,62 @@ func TestAsyncFunction(t *testing.T) {
 
 	require.EqualValues(t, "Job Done: Hello Async", ret4.String())
 }
+
+func TestClass(t *testing.T) {
+	rt := quickjs.NewRuntime()
+	defer rt.Close()
+
+	ctx := rt.NewContext()
+	defer ctx.Close()
+	ctx.Globals().Set("ClassTest", ctx.Function(func(ctx *quickjs.Context, this quickjs.Value, args []quickjs.Value) quickjs.Value {
+		if len(args) >= 2 {
+			this.Set("name", ctx.String(args[0].String()))
+			this.Set("age", ctx.Int32(args[1].Int32()))
+		} else {
+			this.Set("name", ctx.String("weeww"))
+			this.Set("age", ctx.Int32(3))
+		}
+
+		this.Set("sayHello", ctx.Function(func(ctx *quickjs.Context, this quickjs.Value, args []quickjs.Value) quickjs.Value {
+			name := this.Get("name")
+			assert.NotEmpty(t, name.String())
+			fmt.Println(fmt.Sprintf("test name is :%s", name.String()))
+			name.Free()
+			return ctx.Null()
+		}))
+		return ctx.Null()
+	}))
+
+	obj := ctx.CreateClassObject("ClassTest")
+
+	obj.Call("sayHello")
+
+	obj.Free()
+
+	ret1, err := ctx.Eval(`
+let c = new ClassTest("ccc",23);
+let b = new ClassTest("bbb",43);
+c.sayHello();
+b.sayHello();
+class ClassTest1{}
+//b.constructor === ClassTest1
+//b.constructor === ClassTest
+
+class ClassExtendTest extends ClassTest {
+    constructor(name, age, count) {
+        super(name, age);
+        this.count = count;
+    }
+    get_count() {
+        return this.count;
+    }
+};
+let a = new ClassExtendTest("aa",23,55);
+a.get_count();
+//b.staticName = "werq"
+//ClassTest.staticFn()
+`)
+	fmt.Println(ret1.String())
+	assert.NoError(t, err)
+	defer ret1.Free()
+}

@@ -145,6 +145,12 @@ func (ctx *Context) Set() *Set {
 	return NewQjsSet(val, ctx)
 }
 
+func (ctx *Context) CreateClassObject(clasName string) Value {
+	ctor := ctx.Globals().Get(clasName)
+	defer ctor.Free()
+	return Value{ctx: ctx, ref: C.JS_CallConstructor(ctx.ref, ctor.ref, 0, nil)}
+}
+
 // Function returns a js function value with given function template.
 func (ctx *Context) Function(fn func(ctx *Context, this Value, args []Value) Value) Value {
 	val := ctx.eval(`(invokeGoFunction, id) => function() { return invokeGoFunction.call(this, id, ...arguments); }`)
